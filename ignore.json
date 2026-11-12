@@ -1,0 +1,4 @@
+{
+ "_note": "Ports the auto-discovery should NOT report as new (no web UI, internal, or intentionally left out). Format: HostName:port",
+ "ignore": ["Server:22", "Server:80"]
+}

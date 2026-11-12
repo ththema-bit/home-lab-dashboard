@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Home Lab Dashboard</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect x='1' y='3' width='14' height='10' rx='1' fill='%2315171a' stroke='%23e0a43a'/%3E%3Ccircle cx='5' cy='8' r='1.6' fill='%235bd16b'/%3E%3C/svg%3E">
+<style>
+@font-face{font-family:"Barlow C";src:url(fonts/BarlowCondensed-700-latin.woff2) format("woff2");font-weight:700}
+@font-face{font-family:"Barlow C";src:url(fonts/BarlowCondensed-500-latin.woff2) format("woff2");font-weight:500}
+@font-face{font-family:"Plex Mono";src:url(fonts/IBMPlexMono-400-latin.woff2) format("woff2");font-weight:400}
+@font-face{font-family:"Plex Mono";src:url(fonts/IBMPlexMono-600-latin.woff2) format("woff2");font-weight:600}
+:root{--bg:#131518;--panel:#1b1e22;--line:#2c3036;--txt:#e7e2d6;--dim:#8d8f8f;--amber:#e0a43a;--up:#5bd16b;--down:#e2563f}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--txt)}
+body{font:15px/1.4 "Plex Mono",ui-monospace,monospace;padding:28px clamp(14px,4vw,48px) 60px;max-width:1280px;margin:auto}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;gap:16px 28px;border-bottom:1px solid var(--line);padding-bottom:18px;margin-bottom:8px}
+h1{font:700 44px/0.9 "Barlow C",sans-serif;letter-spacing:.02em;text-transform:uppercase;margin:0}
+h1 small{display:block;font:400 12px "Plex Mono",monospace;color:var(--dim);letter-spacing:.08em;margin-top:8px;text-transform:none}
+.search{flex:1;min-width:240px;display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--panel);padding:0 12px;height:44px}
+.search:focus-within{border-color:var(--amber)}
+.search svg{flex:none;color:var(--dim)}
+.search input{flex:1;background:none;border:0;outline:0;color:var(--txt);font:inherit;font-size:16px;height:100%}
+.search kbd{font:12px "Plex Mono";color:var(--dim);border:1px solid var(--line);padding:1px 6px}
+.summary{font-size:12px;color:var(--dim);letter-spacing:.04em}
+.summary b{color:var(--txt);font-weight:600}
+section{margin-top:30px}
+h2{font:700 20px "Barlow C",sans-serif;text-transform:uppercase;letter-spacing:.08em;color:var(--amber);margin:0 0 10px;display:flex;align-items:center;gap:12px}
+h2::after{content:"";flex:1;height:1px;background:var(--line)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+a.svc{display:grid;grid-template-columns:30px 1fr auto;gap:2px 12px;align-items:center;text-decoration:none;color:inherit;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--line);padding:12px 14px 12px 12px;min-height:76px;transition:none}
+a.svc:hover,a.svc:focus-visible,a.svc.first{border-color:var(--amber);background:#20242a;outline:0}
+a.svc[data-st=up]{border-left-color:var(--up)}
+a.svc[data-st=down]{border-left-color:var(--down)}
+a.svc[data-st=down] .nm{color:var(--dim)}
+.ic{grid-row:1/3;color:var(--txt);opacity:.85}
+.nm{font:700 20px/1 "Barlow C",sans-serif;letter-spacing:.02em}
+.ds{grid-column:2/4;font-size:12px;color:var(--dim)}
+.ad{grid-column:2/4;font-size:11.5px;color:#a7a294;word-break:break-all;margin-top:4px}
+.led{width:8px;height:8px;border-radius:50%;background:var(--line);justify-self:end}
+[data-st=up] .led{background:var(--up);box-shadow:0 0 0 3px rgba(91,209,107,.15)}
+[data-st=down] .led{background:var(--down)}
+.host{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);border:1px solid var(--line);padding:0 5px;margin-left:6px;vertical-align:2px;font-family:"Plex Mono"}
+.shares{margin-top:8px;border:1px solid var(--line);background:var(--panel)}
+.share{display:flex;align-items:center;gap:12px;padding:9px 14px;border-top:1px solid var(--line)}
+.share:first-child{border-top:0}
+.share span{width:170px;flex:none;font:500 17px "Barlow C",sans-serif}
+.share code{flex:1;font:13px "Plex Mono";color:#a7a294;word-break:break-all}
+.share button{font:12px "Plex Mono";background:none;color:var(--txt);border:1px solid var(--line);padding:5px 10px;cursor:pointer}
+.share button:hover{border-color:var(--amber)}
+.share button.ok{color:var(--up);border-color:var(--up)}
+.hint{font-size:12px;color:var(--dim);margin:6px 2px 0}
+.empty{display:none;color:var(--dim);margin-top:30px}
+#neu h2{color:var(--txt)}
+#neu h2 .cnt{font:600 12px "Plex Mono";color:var(--bg);background:var(--amber);padding:1px 7px}
+a.svc.new{border-style:dashed;border-left-style:solid;border-left-color:var(--amber)}
+a.svc.new .nm{font-size:18px}
+.warn{color:var(--amber)}
+footer{margin-top:44px;font-size:11.5px;color:var(--dim);border-top:1px solid var(--line);padding-top:12px;display:flex;flex-wrap:wrap;gap:6px 24px;justify-content:space-between}
+@media(max-width:560px){h1{font-size:34px}.share{flex-wrap:wrap}.share span{width:auto}.search kbd{display:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+<symbol id="i-play" viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="19" height="15" rx="1"/><path d="M10 9v6l5-3z"/></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4.5h6a2 2 0 0 1 2 2v13a2 2 0 0 0-2-2H4zM20 4.5h-6a2 2 0 0 0-2 2v13a2 2 0 0 1 2-2h6z"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M12 3.5v12M7 11l5 5 5-5M4 20.5h16"/></symbol>
+<symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 6.5h6l2 2h10v10H3z"/></symbol>
+<symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3l2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/></symbol>
+<symbol id="i-nodes" viewBox="0 0 24 24"><rect x="2.5" y="4" width="7" height="6"/><rect x="14.5" y="14" width="7" height="6"/><path d="M9.5 7h3a2 2 0 0 1 2 2v8"/></symbol>
+<symbol id="i-term" viewBox="0 0 24 24"><rect x="2.5" y="4.5" width="19" height="15" rx="1"/><path d="M6.5 9.5l3 2.5-3 2.5M12 15h5"/></symbol>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3.5" width="7.5" height="7.5"/><rect x="13.5" y="3.5" width="7.5" height="7.5"/><rect x="3" y="14" width="7.5" height="7"/><rect x="13.5" y="14" width="7.5" height="7"/></symbol>
+<symbol id="i-orbit" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><ellipse cx="12" cy="12" rx="10" ry="4.5" transform="rotate(-25 12 12)"/></symbol>
+<symbol id="i-chart" viewBox="0 0 24 24"><path d="M3.5 20.5h17M6 17v-5M11 17V7M16 17v-8M20 17v-3"/></symbol>
+<symbol id="i-net" viewBox="0 0 24 24"><rect x="3" y="13" width="18" height="6.5" rx="1"/><path d="M7 16.2h.01M10.5 16.2h.01M8 13l-2-7M16 13l2-7"/></symbol>
+<symbol id="i-gauge" viewBox="0 0 24 24"><path d="M3.5 17a8.5 8.5 0 1 1 17 0"/><path d="M12 17l4-6"/></symbol>
+<symbol id="i-screen" viewBox="0 0 24 24"><rect x="2.5" y="4" width="19" height="12.5" rx="1"/><path d="M8 20.5h8M12 16.5v4"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="4.5" y="10.5" width="15" height="10" rx="1"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5l5 5"/></symbol>
+</defs>
+</svg>
+<header>
+ <h1>Home Lab Dashboard<small>everything running on the network</small></h1>
+ <label class="search"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6"><use href="#i-search"/></svg>
+  <input id="q" type="search" placeholder="Search... Enter opens the first match" autocomplete="off" autofocus><kbd>/</kbd></label>
+ <div class="summary" id="sum">Checking status...</div>
+</header>
+<section id="neu" hidden><h2>Newly discovered <span class="cnt" id="ncnt"></span></h2><div class="grid" id="ngrid"></div>
+ <p class="hint">Listening on the network but not in the list yet. Add it to services.json.</p></section>
+<main id="main"></main>
+<p class="empty" id="empty">Nothing found.</p>
+<footer><span id="checked">–</span><span>Status and new services are checked every minute by the server · green = responds · red = down</span></footer>
+<script>
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const short=u=>u.replace(/^https?:\/\//,"").replace(/\/$/,"");
+let cards=[];
+function render(svc){
+ const m=document.getElementById("main");
+ m.innerHTML=svc.groups.map(g=>`<section data-g="${g.id}"><h2>${esc(g.name)}</h2><div class="grid">${g.items.map(i=>`
+  <a class="svc" target="_blank" rel="noopener" href="${esc(i.url)}" data-url="${esc(i.url)}" data-k="${esc((i.name+" "+i.desc+" "+i.url+" "+(i.alt||"")+" "+i.host).toLowerCase())}">
+   <svg class="ic" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><use href="#i-${i.icon}"/></svg>
+   <span class="nm">${esc(i.name)}<span class="host">${esc(i.host)}</span></span><span class="led" title="Status"></span>
+   <span class="ds">${esc(i.desc)}</span>
+   <span class="ad">${esc(short(i.url))}${i.alt?" · "+esc(i.alt):""}</span></a>`).join("")}</div>${g.shares?`
+  <div class="shares">${g.shares.map(([n,p])=>`<div class="share" data-k="${esc((n+" "+p+" samba network drive").toLowerCase())}"><span>${esc(n)}</span><code>${esc(p)}</code><button data-p="${esc(p)}">Copy</button></div>`).join("")}</div>
+  <p class="hint">Network drives: copy the path and paste it into the Windows Explorer address bar.</p>`:""}</section>`).join("");
+ cards=[...document.querySelectorAll("a.svc")];
+ m.querySelectorAll(".share button").forEach(b=>b.onclick=()=>{const t=b.dataset.p;
+  const done=()=>{b.textContent="Copied";b.classList.add("ok");setTimeout(()=>{b.textContent="Copy";b.classList.remove("ok")},1500)};
+  if(navigator.clipboard&&isSecureContext)navigator.clipboard.writeText(t).then(done);else{const x=document.createElement("textarea");x.value=t;document.body.appendChild(x);x.select();document.execCommand("copy");x.remove();done()}});
+}
+function filter(){
+ const q=document.getElementById("q").value.trim().toLowerCase();let any=0;
+ document.querySelectorAll("section").forEach(s=>{let n=0;if(s.id==="neu"&&s.hidden)return;
+  s.querySelectorAll("[data-k]").forEach(el=>{const ok=!q||q.split(/\s+/).every(w=>el.dataset.k.includes(w));el.style.display=ok?"":"none";if(ok)n++});
+  const sh=s.querySelector(".shares");if(sh)sh.style.display=[...sh.children].some(c=>c.style.display!=="none")?"":"none";
+  const h=s.querySelector(".hint");if(h)h.style.display=sh&&sh.style.display==="none"?"none":"";
+  s.style.display=n?"":"none";any+=n});
+ document.getElementById("empty").style.display=any?"none":"block";
+ cards.forEach(c=>c.classList.remove("first"));
+ if(q){const f=cards.find(c=>c.style.display!=="none");if(f)f.classList.add("first")}
+}
+let pageVer=null;
+function netmap(u,hi){/* different network: rewrite links to the host IP in the browser's subnet */
+ const me=/^\d+\.\d+\.\d+\.\d+$/.test(location.hostname)?location.hostname:(window.__cip||""),p=me.split(".").slice(0,3).join(".");if(!hi||!me)return u;
+ for(const c in hi){if(!u.includes("//"+c))continue;const ip=(hi[c]||[]).find(x=>x.split(".").slice(0,3).join(".")===p);if(ip&&ip!==c)return u.split("//"+c).join("//"+ip)}return u}
+async function status(){
+ try{if(window.__cip===undefined){try{window.__cip=(await (await fetch("whoami",{cache:"no-store"})).text()).trim()}catch(e){window.__cip=""}}const r=await fetch("status.json?"+Date.now());const s=await r.json();let up=0,down=0;
+  if(s.hostips){document.querySelectorAll("a.svc").forEach(a=>{const o=a.dataset.url||a.getAttribute("href");if(!a.dataset.url)a.dataset.url=o;a.href=netmap(o,s.hostips)})}
+  if(s.version){if(pageVer===null)pageVer=s.version;else if(s.version!==pageVer&&!document.getElementById("q").value){location.reload();return}}
+  cards.forEach(c=>{const x=s.results[c.dataset.url];if(!x)return;c.dataset.st=x.up?"up":"down";
+   c.querySelector(".led").title=x.up?"up ("+x.ms+" ms)":"not responding";x.up?up++:down++});
+  document.getElementById("sum").innerHTML="<b>"+up+"</b> up"+(down?" · <b style='color:var(--down)'>"+down+"</b> down":"");
+  /* put auto-classified tools into their group */
+  const all=s.discovered||[];document.querySelectorAll("a.svc.auto").forEach(a=>a.remove());
+  all.filter(d=>d.group&&d.lan).forEach(d=>{const g=document.querySelector('section[data-g="'+d.group+'"] .grid');if(!g)return;
+   g.insertAdjacentHTML("beforeend",`<a class="svc auto" target="_blank" rel="noopener" data-st="up" data-url="${esc(d.url)}" href="${esc(netmap(d.url,s.hostips))}" data-k="${esc((d.name+" "+d.desc+" "+d.url+" "+d.host+" auto").toLowerCase())}">
+   <svg class="ic" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"><use href="#i-${esc(d.icon||"spark")}"/></svg>
+   <span class="nm">${esc(d.name)}<span class="host">${esc(d.host)} · auto</span></span><span class="led" title="up"></span>
+   <span class="ds">${esc(d.desc||"")}</span><span class="ad">${esc(short(netmap(d.url,s.hostips)))}</span></a>`)});
+  const nd=all.filter(d=>!(d.group&&d.lan)),ns=document.getElementById("neu");ns.hidden=!nd.length;
+  document.getElementById("ncnt").textContent=nd.length;
+  document.getElementById("ngrid").innerHTML=nd.map(d=>`<a class="svc new" target="_blank" rel="noopener" data-st="up" href="${esc(netmap(d.url,s.hostips))}" data-k="${esc((d.title+" "+d.url+" "+d.host+" neu").toLowerCase())}">
+   <svg class="ic" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.5"><use href="#i-spark"/></svg>
+   <span class="nm">${esc(d.title||"Port "+d.port)}<span class="host">${esc(d.host)}</span></span><span class="led"></span>
+   <span class="ds">${d.lan?"found automatically":"<span class=warn>only reachable from the server itself (firewall)</span>"}</span>
+   <span class="ad">${esc(short(d.url))}</span></a>`).join("");
+  cards=[...document.querySelectorAll("a.svc")];filter();
+  const age=Math.round(Date.now()/1000-s.checked);
+  document.getElementById("checked").textContent="Last checked "+(age<90?age+" s":Math.round(age/60)+" min")+" ago";
+ }catch(e){document.getElementById("sum").textContent="Status unavailable"}
+}
+fetch("services.json").then(r=>r.json()).then(s=>{render(s);filter();status();setInterval(status,30000)});
+const q=document.getElementById("q");
+q.addEventListener("input",filter);
+q.addEventListener("keydown",e=>{if(e.key==="Enter"){const f=cards.find(c=>c.style.display!=="none");if(f)window.open(f.href,"_blank","noopener")}
+ if(e.key==="Escape"){q.value="";filter()}});
+addEventListener("keydown",e=>{if(e.key==="/"&&document.activeElement!==q){e.preventDefault();q.focus()}});
+</script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+{
+ "hosts": {
+  "Server": "127.0.0.1"
+ },
+ "groups": [
+  {
+   "id": "monitoring",
+   "name": "Monitoring",
+   "items": [
+    {"name": "Grafana", "desc": "Dashboards and metrics", "url": "http://127.0.0.1:3000", "host": "Server", "icon": "chart"},
+    {"name": "Uptime Kuma", "desc": "Service uptime checks", "url": "http://127.0.0.1:3001", "host": "Server", "icon": "gauge"}
+   ]
+  },
+  {
+   "id": "files",
+   "name": "Files",
+   "items": [
+    {"name": "Nextcloud", "desc": "Files, calendar, contacts", "url": "http://127.0.0.1:8081", "alt": "cloud.example.com", "host": "Server", "icon": "folder"}
+   ],
+   "shares": [
+    ["Backups", "\\\\nas.local\\Backups"]
+   ]
+  },
+  {
+   "id": "system",
+   "name": "System",
+   "items": [
+    {"name": "Portainer", "desc": "Docker management", "url": "http://127.0.0.1:9000", "host": "Server", "icon": "grid"},
+    {"name": "Cockpit", "desc": "Server administration", "url": "https://127.0.0.1:9090", "host": "Server", "icon": "term"}
+   ]
+  }
+ ]
+}
